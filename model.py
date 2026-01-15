@@ -31,14 +31,19 @@ def train_model(df):
     df = add_indicators(df)
 
     features = [
-        "Return", "EMA20", "EMA50",
-        "RSI", "MACD", "MACD_Signal", "Volatility"
+        "Return",
+        "EMA20",
+        "EMA50",
+        "RSI",
+        "MACD",
+        "MACD_Signal",
+        "Volatility"
     ]
 
     X = df[features]
     y = df["Target"]
 
-    model = LogisticRegression()
+    model = LogisticRegression(max_iter=1000)
     model.fit(X, y)
 
     return model, df, features
