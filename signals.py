@@ -12,7 +12,7 @@ def generate_signal(model, df, features, prob_threshold=0.60):
     macd_signal = float(latest["MACD_Signal"].values[0])
 
     # ---- ML Probability ----
-    X_latest = latest[features].to_numpy()
+    X_latest = model.scaler.transform(latest[features].to_numpy())
     prob_up = float(model.predict_proba(X_latest)[0][1])
 
     # ---- Trend Filter ----
