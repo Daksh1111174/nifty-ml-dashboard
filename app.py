@@ -1,12 +1,13 @@
 import streamlit as st
 import yfinance as yf
-import pandas as pd
-from model import train_model, predict_trend
 import matplotlib.pyplot as plt
 
-st.set_page_config(page_title="NIFTY ML Dashboard", layout="wide")
+from model import train_model
+from signals import generate_signal, risk_management
 
-st.title("📈 NIFTY 50 – ML Trend Prediction Dashboard")
+st.set_page_config(page_title="PRO Trading Signals", layout="wide")
+
+st.title("📉 PRO Buy / Sell Signal Dashboard (ML + Indicators)")
 
 # Sidebar
 period = st.sidebar.selectbox(
@@ -15,35 +16,54 @@ period = st.sidebar.selectbox(
     index=2
 )
 
-# Load data
+confidence_threshold = st.sidebar.slider(
+    "ML Confidence Threshold",
+    min_value=0.55,
+    max_value=0.75,
+    value=0.60,
+    step=0.01
+)
+
 @st.cache_data
 def load_data(period):
-    data = yf.download("^NSEI", period=period, auto_adjust=True)
-    return data
+    return yf.download("^NSEI", period=period, auto_adjust=True)
 
-data = load_data(period)
+df = load_data(period)
 
-# Train model
-model, X = train_model(data)
+# Train ML model
+model, df, features = train_model(df)
 
-# Prediction
-prediction = predict_trend(model, X)
+# Generate Signal
+signal, prob = generate_signal(
+    model, df, features, prob_threshold=confidence_threshold
+)
 
-# Display prediction
-st.subheader("📊 Tomorrow's Trend Prediction")
-if prediction == 1:
-    st.success("📈 Market likely to go UP")
+st.subheader("📊 Trading Signal")
+
+if signal == "BUY":
+    st.success(f"🟢 BUY | Confidence: {prob:.2f}")
+elif signal == "SELL":
+    st.error(f"🔴 SELL | Confidence: {1-prob:.2f}")
 else:
-    st.error("📉 Market likely to go DOWN")
+    st.warning(f"🟡 HOLD | ML Confidence: {prob:.2f}")
+
+# Risk Management
+entry, sl, target = risk_management(df)
+
+st.markdown("### 🛡️ Risk Management")
+st.write(f"**Entry Price:** {entry:.2f}")
+st.write(f"**Stop Loss:** {sl:.2f}")
+st.write(f"**Target:** {target:.2f}")
 
 # Price Chart
-st.subheader("📉 NIFTY Closing Price")
+st.subheader("📈 NIFTY Price Chart")
+
 fig, ax = plt.subplots(figsize=(12,4))
-ax.plot(data.index, data["Close"])
+ax.plot(df.index, df["Close"])
 ax.set_xlabel("Date")
-ax.set_ylabel("Index Value")
+ax.set_ylabel("Price")
 st.pyplot(fig)
 
 # Data Preview
-st.subheader("📄 Data Preview")
-st.dataframe(data.tail())
+st.subheader("📄 Latest Data")
+st.dataframe(df.tail())
