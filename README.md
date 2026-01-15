@@ -1,21 +1,22 @@
-# 📈 NIFTY ML Trend Prediction Dashboard
+# 📉 PRO Buy/Sell Signal Dashboard
 
-A Streamlit-based dashboard that uses Machine Learning to predict
-the next-day trend (UP / DOWN) for NIFTY 50.
+Institutional-style trading signal system using:
+- Technical Indicators
+- Machine Learning probability filter
+- Risk management
 
 ## 🚀 Features
-- Live NIFTY data from Yahoo Finance
-- Logistic Regression ML model
-- Trend prediction (UP / DOWN)
-- Interactive Streamlit UI
-
-## 🛠 Tech Stack
-- Python
-- Streamlit
-- yFinance
-- Scikit-learn
+- NIFTY live data
+- BUY / SELL / HOLD signals
+- EMA, RSI, MACD, Volatility
+- ML confidence-based trades
+- Streamlit dashboard
 
 ## ▶ Run Locally
-```bash
 pip install -r requirements.txt
 streamlit run app.py
+
+## 🌐 Deploy on Streamlit Cloud
+1. Push this repo to GitHub
+2. Go to https://streamlit.io/cloud
+3. Select repo → app.py → Deploy
