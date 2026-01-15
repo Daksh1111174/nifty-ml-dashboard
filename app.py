@@ -35,7 +35,10 @@ model, df, features = train_model(df)
 
 # Generate Signal
 signal, prob = generate_signal(
-    model, df, features, prob_threshold=confidence_threshold
+    model=model,
+    df=df,
+    features=features,
+    prob_threshold=confidence_threshold
 )
 
 st.subheader("📊 Trading Signal")
@@ -43,7 +46,7 @@ st.subheader("📊 Trading Signal")
 if signal == "BUY":
     st.success(f"🟢 BUY | Confidence: {prob:.2f}")
 elif signal == "SELL":
-    st.error(f"🔴 SELL | Confidence: {1-prob:.2f}")
+    st.error(f"🔴 SELL | Confidence: {1 - prob:.2f}")
 else:
     st.warning(f"🟡 HOLD | ML Confidence: {prob:.2f}")
 
@@ -58,7 +61,7 @@ st.write(f"**Target:** {target:.2f}")
 # Price Chart
 st.subheader("📈 NIFTY Price Chart")
 
-fig, ax = plt.subplots(figsize=(12,4))
+fig, ax = plt.subplots(figsize=(12, 4))
 ax.plot(df.index, df["Close"])
 ax.set_xlabel("Date")
 ax.set_ylabel("Price")
