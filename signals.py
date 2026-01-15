@@ -1,17 +1,26 @@
 def generate_signal(model, df, features, prob_threshold=0.60):
     latest = df.iloc[-1]
-    X_latest = latest[features].values.reshape(1, -1)
 
-    prob_up = model.predict_proba(X_latest)[0][1]
+    # Force scalar values (IMPORTANT FIX)
+    X_latest = latest[features].to_numpy().reshape(1, -1)
+    prob_up = float(model.predict_proba(X_latest)[0][1])
 
-    trend_up = latest["EMA20"] > latest["EMA50"]
-    trend_down = latest["EMA20"] < latest["EMA50"]
+    ema20 = float(latest["EMA20"])
+    ema50 = float(latest["EMA50"])
+    rsi = float(latest["RSI"])
+    macd = float(latest["MACD"])
+    macd_signal = float(latest["MACD_Signal"])
 
-    rsi_buy = latest["RSI"] > 55
-    rsi_sell = latest["RSI"] < 45
+    # Trend
+    trend_up = ema20 > ema50
+    trend_down = ema20 < ema50
 
-    macd_buy = latest["MACD"] > latest["MACD_Signal"]
-    macd_sell = latest["MACD"] < latest["MACD_Signal"]
+    # Momentum
+    rsi_buy = rsi > 55
+    rsi_sell = rsi < 45
+
+    macd_buy = macd > macd_signal
+    macd_sell = macd < macd_signal
 
     if trend_up and rsi_buy and macd_buy and prob_up >= prob_threshold:
         return "BUY", prob_up
@@ -24,7 +33,7 @@ def generate_signal(model, df, features, prob_threshold=0.60):
 
 
 def risk_management(df, sl_pct=0.02, target_pct=0.04):
-    entry = df["Close"].iloc[-1]
+    entry = float(df["Close"].iloc[-1])
     stop_loss = entry * (1 - sl_pct)
     target = entry * (1 + target_pct)
     return entry, stop_loss, target
